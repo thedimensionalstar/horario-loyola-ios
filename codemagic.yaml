@@ -1,0 +1,73 @@
+# Codemagic: compila la app de iPhone en un Mac en la nube.
+# Hay dos flujos. Elige uno al pulsar "Start new build" en Codemagic.
+
+workflows:
+
+  # 1) Gratis, sin cuenta de desarrollador de Apple.
+  #    Genera un .ipa sin firmar. Lo instalas en el iPhone con Sideloadly o AltStore
+  #    usando tu Apple ID normal. Con una cuenta gratuita, la app caduca a los 7 días
+  #    y hay que volver a instalarla (o dejar que AltStore la renueve).
+  ios-sin-firmar:
+    name: iPhone · IPA sin firmar (Sideloadly / AltStore)
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    environment:
+      node: lts
+      xcode: latest
+    scripts:
+      - name: Instalar dependencias
+        script: npm install
+      - name: Preparar la web (fuentes y plugins)
+        script: npm run build
+      - name: Crear y configurar el proyecto de Xcode
+        script: bash scripts/ios-setup.sh
+      - name: Compilar el .ipa sin firmar
+        script: bash scripts/build-unsigned-ipa.sh
+    artifacts:
+      - build/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+  # 2) Con la cuenta de desarrollador de Apple (99 $/año).
+  #    Firma la app y la sube a TestFlight. Antes de usarlo:
+  #    - Crea la app en App Store Connect con el identificador com.thedimensionalstar.horarioloyola.
+  #    - En Codemagic, ve a Settings > Integrations > Developer Portal y añade una clave de API
+  #      de App Store Connect con el nombre "Horario Loyola" (o cambia el nombre de abajo).
+  ios-testflight:
+    name: iPhone · TestFlight (cuenta de desarrollador)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: Horario Loyola
+    environment:
+      node: lts
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.thedimensionalstar.horarioloyola
+    scripts:
+      - name: Instalar dependencias
+        script: npm install
+      - name: Preparar la web (fuentes y plugins)
+        script: npm run build
+      - name: Crear y configurar el proyecto de Xcode
+        script: bash scripts/ios-setup.sh
+      - name: Aplicar los perfiles de firma
+        script: xcode-project use-profiles
+      - name: Número de compilación
+        script: |
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" ios/App/App/Info.plist
+      - name: Compilar el .ipa firmado
+        script: |
+          cd ios/App
+          if [ -d App.xcworkspace ]; then
+            xcode-project build-ipa --workspace App.xcworkspace --scheme App
+          else
+            xcode-project build-ipa --project App.xcodeproj --scheme App
+          fi
+    artifacts:
+      - ios/App/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
