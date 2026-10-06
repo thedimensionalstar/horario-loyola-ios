@@ -52,6 +52,16 @@ Si Codemagic se queja de la integración mientras no tengas la cuenta, borra el 
 
 En la pestaña **Tareas › Avisos de clase** puedes activar un aviso 5, 10, 15 o 30 minutos antes de cada clase, con la hora y el aula. iOS solo deja programar un número limitado de avisos, así que la app programa las próximas 3 semanas cada vez que la abres. Ábrela de vez en cuando para que no se acaben.
 
+## Widget de próxima clase
+
+Mantén pulsada la pantalla de inicio, toca **Editar › Añadir widget**, busca **Horario** y elige el tamaño:
+
+- **Pequeño:** la clase actual o la siguiente, con la hora, el aula y cuánto falta.
+- **Mediano:** además, la clase de después.
+- **Pantalla de bloqueo:** una versión de una línea o de tres líneas.
+
+El widget no muestra tus tareas, solo las clases. Tiene en cuenta los festivos y los días de examen del calendario.
+
 ## Cambiar el horario
 
-El horario está en `www/index.html`, en la constante `SCHEDULE`. Cambia el aula o la hora, súbelo a GitHub y vuelve a compilar.
+El horario está en dos sitios: en `www/index.html` (constante `SCHEDULE`) para la app y en `resources/ios/HorarioWidget/HorarioWidget.swift` (constante `HORARIO`) para el widget. Cambia los dos, súbelos a GitHub y vuelve a compilar.

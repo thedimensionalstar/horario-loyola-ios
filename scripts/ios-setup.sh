@@ -54,4 +54,11 @@ pb "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrai
 
 echo "→ Copiando la web y los plugins al proyecto"
 npx cap sync ios
+
+echo "→ Widget de próxima clase"
+rm -rf ios/App/HorarioWidget
+cp -R resources/ios/HorarioWidget ios/App/HorarioWidget
+gem install xcodeproj --no-document >/dev/null 2>&1 || gem install xcodeproj --no-document --user-install >/dev/null 2>&1 || true
+ruby scripts/add-widget.rb ios/App/App.xcodeproj
+
 echo "✓ Proyecto iOS listo"

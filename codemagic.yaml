@@ -56,6 +56,7 @@ workflows:
       - name: Número de compilación
         script: |
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" ios/App/HorarioWidget/Info.plist
       - name: Compilar el .ipa firmado
         script: |
           cd ios/App
